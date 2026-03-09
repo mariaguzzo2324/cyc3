@@ -1,0 +1,325 @@
+/* ===== RESET Y CONFIGURACIÓN BASE ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+  background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    color: #333;
+}
+
+/* ===== CONTENEDOR PRINCIPAL ===== */
+.container {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/* ===== TARJETA DE PERFIL ===== */
+.profile-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 24px;
+    padding: 32px;
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.1),
+        0 8px 16px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.profile-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.15),
+        0 12px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* ===== SECCIÓN DE INFORMACIÓN PERSONAL ===== */
+.profile-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+/* FOTO DE PERFIL - MODIFICAR ESTILOS AQUÍ SI NECESITAS */
+.profile-image-container {
+    margin-bottom: 24px;
+}
+
+.profile-image {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #fff;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.profile-image:hover {
+    transform: scale(1.05);
+}
+
+/* INFORMACIÓN PERSONAL - MODIFICAR ESTILOS AQUÍ SI NECESITAS */
+.profile-name {
+    font-size: 28px;
+    font-weight: 700;
+    color: #e575d6;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+}
+
+.profile-lastname {
+    font-size: 24px;
+    font-weight: 500;
+    color: #e575d6;
+    margin-bottom: 16px;
+}
+
+.profile-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.profile-details p {
+    font-size: 16px;
+    color: #e575d6;
+    font-weight: 400;
+}
+
+/* ===== SECCIONES GENERALES ===== */
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 20px;
+    font-weight: 600;
+    color: #82edf1;
+    margin-bottom: 20px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e3f2fd;
+}
+
+.section-title .material-icons {
+    font-size: 24px;
+    color: #82edf1;
+}
+
+/* ===== SECCIÓN DE HABILIDADES ===== */
+.skills-section {
+    margin-bottom: 32px;
+}
+
+/* HABILIDADES - MODIFICAR ESTILOS AQUÍ SI NECESITAS */
+.skills-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+}
+
+.skill-item {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    padding: 16px;
+    border-radius: 12px;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: 1px solid #e3f2fd;
+}
+
+.skill-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(25, 118, 210, 0.2);
+    background: linear-gradient(135deg, #bbdefb 0%, #90caf9 100%);
+}
+
+.skill-name {
+    font-size: 16px;
+    font-weight: 500;
+    color: #e575d6;
+}
+
+/* ===== SECCIONES DE FAVORITOS ===== */
+.favorites-section {
+    margin-bottom: 32px;
+}
+
+/* PELÍCULAS Y DISCOS FAVORITOS - MODIFICAR ESTILOS AQUÍ SI NECESITAS */
+.favorites-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.favorite-item {
+    background: #f5f5f5;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 16px;
+    color: #424242;
+    font-weight: 400;
+    transition: all 0.3s ease;
+    border-left: 4px solid #1976d2;
+}
+
+.favorite-item:hover {
+    background: #e3f2fd;
+    transform: translateX(4px);
+}
+
+/* ===== FOOTER ===== */
+.footer {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    font-weight: 300;
+}
+
+/* ===== EFECTOS DE ANIMACIÓN ===== */
+.fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.8s ease forwards;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+/* Para tablets */
+@media (max-width: 768px) {
+    .profile-card {
+        padding: 24px;
+        margin: 10px;
+    }
+    
+    .profile-name {
+        font-size: 24px;
+    }
+    
+    .profile-lastname {
+        font-size: 20px;
+    }
+    
+    .skills-container {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 12px;
+    }
+    
+    .skill-item {
+        padding: 12px;
+    }
+}
+
+/* Para móviles */
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+    
+    .profile-card {
+        padding: 20px;
+        border-radius: 16px;
+    }
+    
+    .profile-image {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .profile-name {
+        font-size: 22px;
+    }
+    
+    .profile-lastname {
+        font-size: 18px;
+    }
+    
+    .section-title {
+        font-size: 18px;
+    }
+    
+    .skills-container {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .skill-item {
+        padding: 10px;
+    }
+    
+    .favorite-item {
+        font-size: 14px;
+        padding: 10px 12px;
+    }
+}
+
+/* Para pantallas muy pequeñas */
+@media (max-width: 320px) {
+    .profile-card {
+        padding: 16px;
+    }
+    
+    .profile-image {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .profile-name {
+        font-size: 20px;
+    }
+    
+    .profile-lastname {
+        font-size: 16px;
+    }
+}
+
+/* ===== MEJORAS DE ACCESIBILIDAD ===== */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ===== ESTILOS PARA MODO OSCURO (OPCIONAL) ===== */
+@media (prefers-color-scheme: dark) {
+    .profile-card {
+        background: rgba(30, 30, 30, 0.95);
+        color: #fff;
+    }
+    
+    .profile-name {
+        color: #e575d6;
+    }
+    
+    .profile-lastname {
+        color: #e0e0e0;
+    }
+    
+    .profile-details p {
+        color: #b0b0b0;
+    }
+    
+    .favorite-item {
+        background: #424242;
+        color: #e0e0e0;
+    }
+    
+    .favorite-item:hover {
+        background: #616161;
+    }
+} 
