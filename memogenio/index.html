@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Memogenios</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===================== PANTALLA BIENVENIDA ===================== -->
+  <div id="welcome-screen" class="screen">
+
+    <div class="logo-wrap">
+      <div class="logo-title">MEMO<span>GENIOS</span></div>
+    </div>
+
+    <div class="scanline-bar"></div>
+
+    <div class="instructions">
+      <p>
+        Encontrá todos los <strong>pares de cartas</strong> antes de que se acabe el tiempo.<br>
+        Hacé clic en dos cartas para darlas vuelta.<br>
+        Si coinciden, <strong>¡son tuyas!</strong> Si no, se vuelven a ocultar.
+      </p>
+    </div>
+
+    <div class="difficulty-wrap">
+      <div class="difficulty-label">// Dificultad //</div>
+      <div class="difficulty-btns">
+        <button class="diff-btn active" data-pairs="6" data-time="60">FÁCIL</button>
+        <button class="diff-btn" data-pairs="8" data-time="60">MEDIO</button>
+        <button class="diff-btn" data-pairs="10" data-time="60">DIFÍCIL</button>
+      </div>
+    </div>
+
+    <button class="btn-start" id="btn-start">▶ INICIAR JUEGO</button>
+
+  </div>
+
+  <!-- ===================== PANTALLA JUEGO ===================== -->
+  <div id="game-screen" class="screen hidden">
+
+    <div class="game-header">
+      <div class="game-title">MEMO<span style="color:var(--neon-pink)">GENIOS</span></div>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-label">Tiempo</div>
+          <div class="stat-value" id="timer">60</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Movimientos</div>
+          <div class="stat-value" id="moves">0</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Pares</div>
+          <div class="stat-value" id="pairs-found">0</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="board"></div>
+
+  </div>
+
+  <!-- ===================== PANTALLA RESULTADO ===================== -->
+  <div id="result-screen" class="screen hidden">
+
+    <div class="result-icon" id="result-icon">🏆</div>
+    <div class="result-title" id="result-title">¡GENIO!</div>
+    <p class="result-msg" id="result-msg">Encontraste todos los pares.</p>
+
+    <div class="result-stats">
+      <div class="r-stat">
+        <div class="r-stat-value" id="final-moves">0</div>
+        <div class="r-stat-label">Movimientos</div>
+      </div>
+      <div class="r-stat">
+        <div class="r-stat-value" id="final-time">0s</div>
+        <div class="r-stat-label">Tiempo restante</div>
+      </div>
+    </div>
+
+    <button class="btn-restart" id="btn-restart">↺ JUGAR DE NUEVO</button>
+
+  </div>
+
+  <!-- ===================== JAVASCRIPT ===================== -->
+  <script>
+    // ---- Emojis disponibles ----
+    const ALL_EMOJIS = [
+  '🐠','🐙','🦀','🐚','🐬',
+  '🐳','🦑','🐡','🪸','⭐'
+];
+    // ---- Estado del juego ----
+    let totalPairs   = 6;
+    let timeLimit    = 60;
+    let flipped      = [];
+    let matched      = 0;
+    let moves        = 0;
+    let lockBoard    = false;
+    let timerID      = null;
+    let timeLeft     = 60;
+    let gameStarted  = false;
+
+    // ---- Referencias DOM ----
+    const welcomeScreen = document.getElementById('welcome-screen');
+    const gameScreen    = document.getElementById('game-screen');
+    const resultScreen  = document.getElementById('result-screen');
+    const board         = document.getElementById('board');
+    const timerEl       = document.getElementById('timer');
+    const movesEl       = document.getElementById('moves');
+    const pairsEl       = document.getElementById('pairs-found');
+    const btnStart      = document.getElementById('btn-start');
+    const btnRestart    = document.getElementById('btn-restart');
+    const diffBtns      = document.querySelectorAll('.diff-btn');
+    const resultIcon    = document.getElementById('result-icon');
+    const resultTitle   = document.getElementById('result-title');
+    const resultMsg     = document.getElementById('result-msg');
+    const finalMoves    = document.getElementById('final-moves');
+    const finalTime     = document.getElementById('final-time');
+
+    // ---- Selector dificultad ----
+    diffBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        diffBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        totalPairs = parseInt(btn.dataset.pairs);
+        timeLimit  = parseInt(btn.dataset.time);
+      });
+    });
+
+    // ---- Iniciar juego ----
+    btnStart.addEventListener('click', startGame);
+    btnRestart.addEventListener('click', () => {
+      showScreen(welcomeScreen);
+    });
+
+    function startGame() {
+      // Reset
+      flipped     = [];
+      matched     = 0;
+      moves       = 0;
+      lockBoard   = false;
+      timeLeft    = timeLimit;
+      gameStarted = false;
+
+      movesEl.textContent    = '0';
+      pairsEl.textContent    = '0';
+      timerEl.textContent    = timeLeft;
+      timerEl.classList.remove('urgent');
+
+      if (timerID) clearInterval(timerID);
+
+      buildBoard();
+      showScreen(gameScreen);
+
+      // El timer arranca con el primer clic
+    }
+
+    // ---- Construir tablero ----
+    function buildBoard() {
+      board.innerHTML = '';
+
+      const emojis  = ALL_EMOJIS.slice(0, totalPairs);
+      const deck    = shuffle([...emojis, ...emojis]);
+      const cols    = totalPairs <= 6 ? 4 : totalPairs <= 8 ? 4 : 5;
+
+      board.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+
+      deck.forEach((emoji, i) => {
+        const card = document.createElement('div');
+        card.className  = 'card';
+        card.dataset.emoji = emoji;
+        card.dataset.index = i;
+
+        card.innerHTML = `
+          <div class="card-inner">
+            <div class="card-face card-back">?</div>
+            <div class="card-face card-front">${emoji}</div>
+          </div>
+        `;
+
+        card.addEventListener('click', onCardClick);
+        board.appendChild(card);
+      });
+    }
+
+    // ---- Clic en carta ----
+    function onCardClick(e) {
+      const card = e.currentTarget;
+
+      if (lockBoard) return;
+      if (card.classList.contains('flipped')) return;
+      if (card.classList.contains('matched')) return;
+
+      // Arrancar timer en primer clic
+      if (!gameStarted) {
+        gameStarted = true;
+        timerID = setInterval(tickTimer, 1000);
+      }
+
+      card.classList.add('flipped');
+      flipped.push(card);
+
+      if (flipped.length === 2) {
+        moves++;
+        movesEl.textContent = moves;
+        lockBoard = true;
+        checkMatch();
+      }
+    }
+
+    // ---- Chequear par ----
+    function checkMatch() {
+      const [a, b] = flipped;
+      if (a.dataset.emoji === b.dataset.emoji) {
+        // ¡Par!
+        setTimeout(() => {
+          a.classList.add('matched');
+          b.classList.add('matched');
+          a.classList.remove('flipped');
+          b.classList.remove('flipped');
+          matched++;
+          pairsEl.textContent = matched;
+          flipped   = [];
+          lockBoard = false;
+
+          if (matched === totalPairs) endGame(true);
+        }, 400);
+      } else {
+        // No coinciden
+        a.classList.add('wrong');
+        b.classList.add('wrong');
+        setTimeout(() => {
+          a.classList.remove('flipped', 'wrong');
+          b.classList.remove('flipped', 'wrong');
+          flipped   = [];
+          lockBoard = false;
+        }, 900);
+      }
+    }
+
+    // ---- Timer ----
+    function tickTimer() {
+      timeLeft--;
+      timerEl.textContent = timeLeft;
+
+      if (timeLeft <= 10) timerEl.classList.add('urgent');
+
+      if (timeLeft <= 0) {
+        clearInterval(timerID);
+        endGame(false);
+      }
+    }
+
+    // ---- Fin del juego ----
+    function endGame(win) {
+      if (timerID) clearInterval(timerID);
+      lockBoard = true;
+
+      setTimeout(() => {
+        finalMoves.textContent = moves;
+        finalTime.textContent  = timeLeft + 's';
+
+        if (win) {
+          resultIcon.textContent  = '🏆';
+          resultTitle.textContent = '¡GENIO!';
+          resultTitle.className   = 'result-title win';
+          resultMsg.textContent   = '¡Encontraste todos los pares! Tu memoria es de otro nivel.';
+        } else {
+          resultIcon.textContent  = '💀';
+          resultTitle.textContent = 'TIME OUT';
+          resultTitle.className   = 'result-title lose';
+          resultMsg.textContent   = 'Se agotó el tiempo. ¿Lo intentás de nuevo?';
+        }
+
+        showScreen(resultScreen);
+      }, 600);
+    }
+
+    // ---- Helpers ----
+    function showScreen(target) {
+      [welcomeScreen, gameScreen, resultScreen].forEach(s => {
+        s.classList.toggle('hidden', s !== target);
+      });
+    }
+
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+  </script>
+
+</body>
+</html>
